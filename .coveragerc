@@ -1,0 +1,12 @@
+[run]
+omit =
+    **/tests/*
+    */config.py
+
+[report]
+fail_under = 90
+skip_covered = True
+skip_empty = True
+
+[html]
+directory = logs/htmlcov/

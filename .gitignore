@@ -1,6 +1,5 @@
 .version.json
 logs/
-.coveragerc
 
 # Terraform
 *.terraform/
