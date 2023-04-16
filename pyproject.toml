@@ -1,0 +1,17 @@
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.0.1"
+tag_format = "$version"
+
+[tool.pytest.ini_options]
+addopts = "--cov --cov-report term-missing --quiet --tb=short"
+console_output_style = "count"
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning"
+]
+log_cli = "True"
+log_cli_level = "WARNING"
+log_file_level = "DEBUG"
+log_file = "logs/pytest-logs.txt"
+testpaths = ["src/backend/tests"]

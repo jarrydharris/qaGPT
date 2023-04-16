@@ -1,0 +1,6 @@
+.dockerignore
+.git
+.cache
+*.pyc
+secrets/
+*.keys

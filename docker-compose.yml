@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  postgres:
+    # TODO: Add a service for the database.
+    image: postgres:latest
+    ports:
+      - "7654:5432"
+  api:
+    # TODO: Add a service for the api.
+    image: "api:latest"
