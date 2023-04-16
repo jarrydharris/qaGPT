@@ -17,6 +17,7 @@ PG_USER = os.environ.get("PG_USER")
 PG_SECRET = os.environ.get("PG_SECRET")
 PG_URI = f"postgresql://{PG_USER}:{PG_SECRET}@{PG_HOST}:{PG_PORT}/development"
 
+
 class FlaskConfig:
     @staticmethod
     def init_app(app):

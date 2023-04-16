@@ -1,7 +1,5 @@
 import logging as lg
 
-from sqlalchemy import inspect, text
-
 from src.backend.app_factory import initialize_logging
 from src.backend.config import config, TestConfig
 
