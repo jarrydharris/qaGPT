@@ -33,14 +33,8 @@ def apply_configs(app: Flask, environment: str, config: dict):
 
 
 def initialize_database(app: Flask):
-    from src.backend.models.message import db
-
-    db.init_app(app)
-    lg.info("Initialized SQLalchemy")
-
-    if app.debug or app.testing:
-        # Make sure engine.echo is set to False
-        lg.getLogger("sqlalchemy.engine").setLevel(lg.INFO)
+    # TODO: Initialize database
+    return None
 
 
 def setup_basic_routes(app: Flask):
