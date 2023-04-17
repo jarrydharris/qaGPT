@@ -1,2 +1,4 @@
 Flask
 langchain
+pytest
+python-dotenv

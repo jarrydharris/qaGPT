@@ -15,6 +15,10 @@ def test_logging_for_each_environment(app):
     assert development_level == lg.INFO
 
 
+def test_app_has_testing_config(app):
+    assert app.config.get("ENV") == "testing"
+
+
 def test_apply_config_to_app(app):
     assert app.config["SQLALCHEMY_DATABASE_URI"] == TestConfig.SQLALCHEMY_DATABASE_URI
     assert app.config["TESTING"] is TestConfig.TESTING

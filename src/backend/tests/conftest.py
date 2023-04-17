@@ -1,4 +1,5 @@
 import pytest
+
 from src.backend.app_factory import create_app
 from src.backend.config import config
 
@@ -12,4 +13,3 @@ def app():
 def client(app):
     app.testing = True
     return app.test_client()
-

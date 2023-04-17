@@ -52,7 +52,7 @@ endif
 	@echo "Logged in to db: ${APP_ENVIRONMENT} as user: ${PG_USER}"
 
 run:
-	@echo "TODO: Implement run"
+	@flask run
 
 test:
 	@pytest
