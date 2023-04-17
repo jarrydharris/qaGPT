@@ -62,11 +62,8 @@ clean:
 	@$(call find_and_del, "__pycache__", "d")
 	@$(call find_and_del, ".coverage", "f")
 
-add-dependency:
-	@pip freeze | grep $(DEP) >> requirements.txt
-
-add-dependency-dev:
-	@pip freeze | grep $(DEP) >> requirements-dev.txt
+add:
+	@bash scripts/add_py_pkg.sh $(m)
 
 .DEFAULT_GOAL := help
 help:
