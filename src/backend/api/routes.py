@@ -15,6 +15,6 @@ def health():  # put application's code here
 
 @api.route('/send_message', methods=['POST'])
 def send_message():
-    lg.info("User sent a message")
-    handle_message(request.data)
-    return make_response("success", JSON_HEADER)
+    lg.info(f"User sent a message {request.data}")
+    response = handle_message(request.data)
+    return make_response(jsonify(response), JSON_HEADER)
