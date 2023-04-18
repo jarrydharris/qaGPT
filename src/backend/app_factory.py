@@ -44,7 +44,7 @@ def apply_configs(app: Flask, environment: str, config: dict):
 
 def initialize_database(app: Flask):
     # TODO: Initialize database
-    return None
+    ...
 
 
 def setup_basic_routes(app: Flask):
