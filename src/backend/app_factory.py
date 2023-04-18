@@ -37,6 +37,9 @@ def apply_configs(app: Flask, environment: str, config: dict):
     app.config.from_object(config[environment])
     config[environment].init_app(app)
     lg.info(f'Config applied: "{environment}" -> {config[environment]}')
+    # Resetting back to default
+    default_environment = "development"
+    dotenv.set_key(dotenv_path, "APP_ENV", default_environment)
 
 
 def initialize_database(app: Flask):
