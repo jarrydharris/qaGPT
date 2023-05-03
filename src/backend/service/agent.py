@@ -1,32 +1,25 @@
 import json
 import logging as lg
-import os
 
 from dotenv import load_dotenv
-from langchain import OpenAI, ConversationChain
-from langchain.memory import ConversationBufferWindowMemory
+from flask import jsonify, make_response, Response
+
+from src.backend.config import JSON_HEADER, BAD_REQUEST
+from src.backend.models.agent import travel_agent_v1
 
 load_dotenv()
 
-tools = []
-llm = OpenAI(
-    openai_api_key=os.environ["OPENAI_API_KEY"],
-    temperature=0)
-memory = ConversationBufferWindowMemory(k=10)
 
-agent = ConversationChain(
-    llm=llm,
-    memory=memory,
-    verbose=False
-)
-
-
-def handle_message(data: bytes, agent=agent) -> str:
-    lg.debug(f"Handle message: {data}")
+def handle_message(data: bytes, agent=travel_agent_v1) -> Response:
+    lg.debug(f"User message: {data}")
     data_str = data.decode("utf-8")
     data_json = json.loads(data_str)
     message = data_json["message"]
-    agent_response = agent.predict(input=message)
+    if message == "":
+        lg.error("Blank message, returning warning.")
+        return make_response(jsonify("Please enter a message."), BAD_REQUEST, JSON_HEADER)
 
-    lg.debug(f"Agent message: {agent_response}")
-    return agent_response
+    agent_response = agent.predict(human_input=message)
+
+    lg.info(f"Agent message: {agent_response}")
+    return make_response(jsonify(agent_response), JSON_HEADER)
