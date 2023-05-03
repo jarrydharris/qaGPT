@@ -42,11 +42,6 @@ def apply_configs(app: Flask, environment: str, config: dict):
     dotenv.set_key(dotenv_path, "APP_ENV", default_environment)
 
 
-def initialize_database(app: Flask):
-    # TODO: Initialize database
-    ...
-
-
 def setup_basic_routes(app: Flask):
     @app.route("/")
     def index() -> str:
