@@ -1,11 +1,12 @@
-import pytest
 import logging as lg
 
-from src.backend.config import SUCCESS
+import pytest
+
+from src.backend.config import SUCCESS, BAD_REQUEST
 
 # this costs money, so we don't want to run it by default
 # TODO: Mocks https://python.langchain.com/en/latest/modules/models/llms/examples/fake_llm.html
-test_agents = False
+test_agents = True
 if not test_agents:
     lg.info("Skipping agent tests")
     pytest.skip("Skipping agent tests", allow_module_level=True)

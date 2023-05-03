@@ -2,3 +2,4 @@ Flask
 langchain
 pytest
 python-dotenv
+psycopg

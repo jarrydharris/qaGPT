@@ -2,3 +2,4 @@
 commitizen
 pre-commit
 python-dotenv
+mypy

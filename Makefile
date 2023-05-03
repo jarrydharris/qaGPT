@@ -52,10 +52,16 @@ endif
 	@echo "Logged in to db: ${APP_ENVIRONMENT} as user: ${PG_USER}"
 
 run:
+	@export APP_ENV='development'
+	@export FLASK_APP="src.backend.app_factory:create_app('${APP_ENV}')"
 	@flask run
 
 test:
+	@export APP_ENV='testing'
+	@export FLASK_APP="src.backend.app_factory:create_app('${APP_ENV}')"
 	@pytest
+	@export APP_ENV='development'
+	@export FLASK_APP="src.backend.app_factory:create_app('${APP_ENV}')"
 
 clean:
 	@$(call find_and_del, ".pytest_cache", "d")
