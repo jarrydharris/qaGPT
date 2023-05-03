@@ -12,6 +12,7 @@
 .PHONY: clean
 .PHONY: add-dependency
 .PHONY: add-dependency-dev
+.PHONY: watch-dev
 
 # Environment variable checks
 ifndef PG_HOST
@@ -67,6 +68,9 @@ clean:
 	@$(call find_and_del, ".pytest_cache", "d")
 	@$(call find_and_del, "__pycache__", "d")
 	@$(call find_and_del, ".coverage", "f")
+
+watch-dev:
+	@watch -n 1 "cat ./logs/development.log | tail -n 15"
 
 add:
 	@bash scripts/add_py_pkg.sh $(m)
