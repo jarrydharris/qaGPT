@@ -49,6 +49,12 @@ class TestConfig(FlaskConfig):
     LOG_LEVEL = lg.DEBUG
 
 
+class CorsConfig:
+    CORS_ORIGIN = os.environ['CORS_ORIGIN']
+    CORS_HEADERS = ['Content-Type', 'x-csrf-token']
+    CORS_METHODS = ["GET", "POST", "OPTIONS"]
+
+
 config = {
     "development": DevelopmentConfig,
     "testing": TestConfig
