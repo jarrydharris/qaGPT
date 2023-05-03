@@ -17,3 +17,8 @@ def test_send_message(client):
     assert response.status_code == SUCCESS
     assert "here" in response.get_data(True).lower()
 
+
+def test_send_blank_message_returns_error(client):
+    response = client.post('/api/send_message', json={"message": ""})
+    assert response.status_code == BAD_REQUEST
+    assert "Please enter a message." in response.get_data(True)
