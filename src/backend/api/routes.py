@@ -7,9 +7,7 @@ from src.backend.service.agent import handle_message
 
 api = Blueprint('api', __name__, url_prefix='/api')
 
-state = {
-
-}
+state = {}
 
 
 @api.route('/health', methods=['GET'])

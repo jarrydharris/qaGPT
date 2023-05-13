@@ -3,3 +3,4 @@ langchain
 pytest
 python-dotenv
 psycopg
+weaviate-client
