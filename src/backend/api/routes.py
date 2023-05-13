@@ -7,6 +7,10 @@ from src.backend.service.agent import handle_message
 
 api = Blueprint('api', __name__, url_prefix='/api')
 
+state = {
+
+}
+
 
 @api.route('/health', methods=['GET'])
 def health():  # put application's code here
@@ -18,6 +22,17 @@ def health():  # put application's code here
 def send_message():
     lg.info(f"User sent a message {request.data}")
     return handle_message(request.data)
+
+@api.route('/get_input_state', methods=['GET'])
+def get_input_state():
+    lg.info(f"User requested checkbox state")
+    return make_response(jsonify(state), JSON_HEADER)
+
+@api.route('/set_input_state', methods=['OPTIONS', 'POST', 'GET'])
+def set_input_state():
+    lg.info(f"User set checkbox state {request.json}")
+    state.update(request.json)
+    return make_response(jsonify("success"), JSON_HEADER)
 
 
 @api.after_request
