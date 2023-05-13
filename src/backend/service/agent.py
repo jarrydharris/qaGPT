@@ -14,8 +14,11 @@ def handle_message(data: bytes, agent=travel_agent_v1) -> Response:
     lg.debug(f"User message: {data}")
     data_str = data.decode("utf-8")
     data_json = json.loads(data_str)
-    message = data_json["message"]
-    if message == "":
+    message = data_json.get("message")
+    if message is None:
+        lg.error("No message, returning warning.")
+        return make_response(jsonify(f"JSON incorrectly formated: {data}"), BAD_REQUEST, JSON_HEADER)
+    elif message == "":
         lg.error("Blank message, returning warning.")
         return make_response(jsonify("Please enter a message."), BAD_REQUEST, JSON_HEADER)
 
