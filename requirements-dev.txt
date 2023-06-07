@@ -3,3 +3,5 @@ commitizen
 pre-commit
 python-dotenv
 mypy
+wandb
+pip-review

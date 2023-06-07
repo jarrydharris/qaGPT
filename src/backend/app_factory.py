@@ -2,6 +2,7 @@ import logging as lg
 
 import dotenv
 from flask import Flask
+from flask_session import Session
 
 from src.backend.config import config
 
@@ -11,9 +12,9 @@ def create_app(environment: str, config: dict = config) -> Flask:
     initialize_logging(app, environment, config)
     lg.info(f"Creating app under {environment}.")
     apply_configs(app, environment, config)
+    Session(app)
     setup_basic_routes(app)
     register_blueprints(app)
-
     return app
 
 

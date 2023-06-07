@@ -23,3 +23,5 @@ def test_apply_config_to_app(app):
     assert app.config["SQLALCHEMY_DATABASE_URI"] == TestConfig.SQLALCHEMY_DATABASE_URI
     assert app.config["TESTING"] is TestConfig.TESTING
     assert app.config["LOG_LEVEL"] is lg.DEBUG
+    assert app.config["SESSION_TYPE"] == "redis"
+    assert app.config["SESSION_REDIS"].ping()

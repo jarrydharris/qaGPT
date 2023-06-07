@@ -1,36 +1,48 @@
 import logging as lg
 
-from flask import Blueprint, make_response, request, jsonify
+from flask import Blueprint, make_response, request, jsonify, session, Response
 
-from src.backend.config import JSON_HEADER, CorsConfig
+from src.backend.config import JSON_HEADER, CorsConfig, BAD_REQUEST
 from src.backend.service.agent import handle_message
+from src.backend.service.ui_state import initialize_ui_state, handle_state_change
 
 api = Blueprint('api', __name__, url_prefix='/api')
 
-state = {}
+
+@api.route("/init_session", methods=['POST', 'OPTIONS'])
+def set_session() -> Response:
+    lg.info(f"User requesting session.")
+    initialization_successful = initialize_ui_state(session, request.json)
+    if not initialization_successful:
+        lg.info(f"Invalid schema, returning 400.")
+        return make_response(jsonify("Invalid schema"), BAD_REQUEST)
+    lg.debug(f"session obj: {session}")
+    return make_response(jsonify(session["session_id"]), JSON_HEADER)
+
+
+@api.route('/set_input_state', methods=['OPTIONS', 'POST'])
+def set_input_state():
+    lg.info(f"User updating state")
+    handle_state_change(session, request.json)
+    return make_response(jsonify("success"), JSON_HEADER)
+
+
+@api.route('/get_input_state', methods=['GET'])
+def get_input_state():
+    lg.info(f"User requested checkbox state")
+    return make_response(jsonify(session["state"]), JSON_HEADER)
 
 
 @api.route('/health', methods=['GET'])
-def health():  # put application's code here
+def health() -> Response:
     lg.info(f"User sent a health check.")
     return make_response(jsonify("success"), JSON_HEADER)
 
 
 @api.route('/send_message', methods=['POST'])
-def send_message():
+def send_message() -> Response:
     lg.info(f"User sent a message {request.data}")
     return handle_message(request.data)
-
-@api.route('/get_input_state', methods=['GET'])
-def get_input_state():
-    lg.info(f"User requested checkbox state")
-    return make_response(jsonify(state), JSON_HEADER)
-
-@api.route('/set_input_state', methods=['OPTIONS', 'POST', 'GET'])
-def set_input_state():
-    lg.info(f"User set checkbox state {request.json}")
-    state.update(request.json)
-    return make_response(jsonify("success"), JSON_HEADER)
 
 
 @api.after_request

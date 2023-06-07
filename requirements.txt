@@ -4,3 +4,6 @@ pytest
 python-dotenv
 psycopg
 weaviate-client
+aim
+Flask-Session
+pydantic

@@ -1,6 +1,7 @@
 import logging as lg
 import os
 
+import redis
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -22,8 +23,21 @@ PG_SECRET = os.environ["PG_SECRET"]
 APP_ENV = os.environ["APP_ENV"]
 PG_URI = f"postgresql://{PG_USER}:{PG_SECRET}@{PG_HOST}:{PG_PORT}/${APP_ENV}"
 
+STATE_SCHEMA = {
+    "filter": {"id": "filter", "type": "text", "value": ""},
+    "slider": {"id": "slider", "type": "range", "value": "5000"},
+    "wildlife-checkbox": {"checked": False, "id": "wildlife-checkbox", "type": "checkbox"}
+}
+
 
 class FlaskConfig:
+    SECRET_KEY = os.environ['SECRET_KEY']
+    SESSION_TYPE = 'redis'
+    SESSION_REDIS = redis.from_url('redis://localhost:6379')
+    SESSION_PERMANENT = False
+    SESSION_USE_SIGNER = True
+    PROMPT_TEMPLATE_PATH = os.environ['PROMPT_TEMPLATE_PATH']
+
     @staticmethod
     def init_app(app):
         pass
