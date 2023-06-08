@@ -1,3 +1,4 @@
+from copy import deepcopy
 from uuid import UUID
 
 from src.backend.config import SUCCESS, BAD_REQUEST, STATE_SCHEMA
@@ -54,3 +55,44 @@ def test_init_ui_state_retains_session_data(client):
             assert key in sess
         assert is_valid_uuid(sess["session_id"])
         assert sess["state"] == STATE_SCHEMA
+
+
+def test_init_ui_change_updates_session_state(client_session_a):  # , client_session_b
+    with client_session_a:
+        response = client_session_a.post('/api/init_session', json=STATE_SCHEMA)
+        assert response.status_code == SUCCESS
+
+    new_state = deepcopy(STATE_SCHEMA)
+
+    with client_session_a.session_transaction() as sess:
+        new_state["filter"]["value"] = "new value"
+        response = client_session_a.post('/api/set_input_state', json=new_state)
+        assert response.status_code == SUCCESS
+        assert sess["state"]["filter"]["value"] == new_state["filter"]["value"]
+
+    # with client_session_b:
+    #     response = client_session_b.post('/api/init_session', json=STATE_SCHEMA)
+    #     assert response.status_code == SUCCESS
+    # with client_session_b.session_transaction() as sess:
+    #     assert sess["state"]["filter"]["value"] != new_state["filter"]["value"]
+
+
+def test_set_ui_state_expects_credentials(client):
+    with client:
+        response = client.post('/api/set_input_state', json=STATE_SCHEMA)
+        assert response.status_code == BAD_REQUEST
+
+
+def test_set_ui_state_with_credentials_updates(client):
+    with client:
+        response = client.post('/api/init_session', json=STATE_SCHEMA)
+        assert response.status_code == SUCCESS
+        response = client.post('/api/set_input_state', json=STATE_SCHEMA)
+        assert response.status_code == SUCCESS
+        print(response.headers.items())
+
+    with client.session_transaction() as sess:
+        assert "session_id" in sess
+        print(sess)
+
+

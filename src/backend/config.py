@@ -34,8 +34,10 @@ class FlaskConfig:
     SECRET_KEY = os.environ['SECRET_KEY']
     SESSION_TYPE = 'redis'
     SESSION_REDIS = redis.from_url('redis://localhost:6379')
-    SESSION_PERMANENT = False
+    SESSION_PERMANENT = True
     SESSION_USE_SIGNER = True
+    SESSION_COOKIE_SAMESITE = "None"
+    SESSION_COOKIE_SECURE = True
     PROMPT_TEMPLATE_PATH = os.environ['PROMPT_TEMPLATE_PATH']
 
     @staticmethod
@@ -67,6 +69,7 @@ class CorsConfig:
     CORS_ORIGIN = os.environ['CORS_ORIGIN']
     CORS_HEADERS = ['Content-Type', 'x-csrf-token']
     CORS_METHODS = ["GET", "POST", "OPTIONS"]
+    CORS_CREDENTIALS = "true"
 
 
 config = {
