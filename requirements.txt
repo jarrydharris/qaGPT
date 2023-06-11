@@ -7,3 +7,4 @@ weaviate-client
 aim
 Flask-Session
 pydantic
+Flask-CORS

@@ -52,6 +52,14 @@ endif
 	@sleep 2
 	@echo "Logged in to db: ${APP_ENVIRONMENT} as user: ${PG_USER}"
 
+redis-run:
+	@docker run -p 6379:6379 -it redis/redis-stack:latest
+
+flask-run:
+	@export APP_ENV='development'
+	@export FLASK_APP="src.backend.app_factory:create_app('${APP_ENV}')"
+	@flask run
+
 run:
 	@export APP_ENV='development'
 	@export FLASK_APP="src.backend.app_factory:create_app('${APP_ENV}')"

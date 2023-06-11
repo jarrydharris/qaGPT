@@ -52,7 +52,8 @@ class DevelopmentConfig(FlaskConfig):
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_RECORD_QUERIES = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    LOG_LEVEL = lg.INFO
+    LOG_LEVEL = lg.DEBUG
+    # LOG_LEVEL = lg.INFO
 
 
 class TestConfig(FlaskConfig):
