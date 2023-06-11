@@ -3,12 +3,23 @@ import logging as lg
 from flask import Blueprint, make_response, request, jsonify, session, Response
 from flask_cors import CORS
 
-from src.backend.config import JSON_HEADER, CorsConfig, BAD_REQUEST
-from src.backend.service.agent import handle_message
+from src.backend.config import JSON_HEADER, CorsConfig, BAD_REQUEST, SUCCESS
+from src.backend.service.messaging import handle_message
 from src.backend.service.ui_state import initialize_ui_state, handle_state_change
 
 api = Blueprint('api', __name__, url_prefix='/api')
 CORS(api, supports_credentials=True)
+
+
+def requires_session(func):
+    def wrapper(*args, **kwargs):
+        if "session_id" not in session:
+            lg.error("Session not initialized, returning warning.")
+            return make_response(jsonify("Session not initialized, try refreshing the page."), SUCCESS, JSON_HEADER)
+        return func(*args, **kwargs)
+
+    wrapper.__name__ = func.__name__
+    return wrapper
 
 
 @api.route("/init_session", methods=['POST', 'OPTIONS'])
@@ -23,11 +34,9 @@ def set_session() -> Response:
 
 
 @api.route('/set_input_state', methods=['POST', 'OPTIONS'])
+@requires_session
 def set_input_state():
     lg.info(f"User updating state")
-    if "session_id" not in session:
-        return make_response(jsonify("Session not initialized"), BAD_REQUEST)
-
     if handle_state_change(session, request.json):
         return make_response(jsonify("success"), JSON_HEADER)
     else:
@@ -35,21 +44,23 @@ def set_input_state():
 
 
 @api.route('/get_input_state', methods=['GET'])
+@requires_session
 def get_input_state():
-    lg.info(f"User requested checkbox state")
+    lg.debug(f"User requested checkbox state")
     return make_response(jsonify(session["state"]), JSON_HEADER)
+
+
+@api.route('/send_message', methods=['POST'])
+@requires_session
+def send_message() -> Response:
+    lg.info(f"User sent a message {request.json}")
+    return handle_message(session, request.json)
 
 
 @api.route('/health', methods=['GET'])
 def health() -> Response:
     lg.info(f"User sent a health check.")
     return make_response(jsonify("success"), JSON_HEADER)
-
-
-@api.route('/send_message', methods=['POST'])
-def send_message() -> Response:
-    lg.info(f"User sent a message {request.data}")
-    return handle_message(request.data)
 
 
 @api.after_request
