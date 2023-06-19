@@ -1,7 +1,8 @@
 import logging as lg
 
 from src.backend.app_factory import initialize_logging
-from src.backend.config import config, TestConfig
+from src.backend.config import config
+from src.backend.config import TestConfig
 
 
 def test_fixture_has_test_config(client):

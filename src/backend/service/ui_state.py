@@ -1,7 +1,6 @@
 import uuid
 
 from flask import session
-
 from src.backend.config import STATE_SCHEMA
 
 
@@ -30,9 +29,6 @@ def handle_state_change(session: session, new_state: dict) -> bool:
 def initialize_ui_state(current_session: session, input_state: dict) -> bool:
     if not state_schema_is_valid(input_state):
         return False
-    ui_state = {
-        "session_id": str(uuid.uuid4()),
-        "state": input_state
-    }
+    ui_state = {"session_id": str(uuid.uuid4()), "state": input_state}
     current_session.update(ui_state)
     return True

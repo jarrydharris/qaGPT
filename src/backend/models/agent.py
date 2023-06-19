@@ -1,16 +1,18 @@
-from dotenv import load_dotenv
-
-load_dotenv()
-
 import os
 import uuid
 from datetime import datetime
 
-from langchain import OpenAI, PromptTemplate, LLMChain
+from dotenv import load_dotenv
+from langchain import LLMChain
+from langchain import OpenAI
+from langchain import PromptTemplate
 from langchain.callbacks import AimCallbackHandler
 from langchain.chains.base import Chain
-from langchain.memory import ConversationBufferMemory, PostgresChatMessageHistory
+from langchain.memory import ConversationBufferMemory
+from langchain.memory import PostgresChatMessageHistory
 from langchain.schema import BaseChatMessageHistory
+
+load_dotenv()
 
 
 def generate_session_id() -> str:
@@ -18,11 +20,7 @@ def generate_session_id() -> str:
 
 
 class TravelAgentV1:
-    def __init__(
-            self,
-            chain: Chain,
-            chat_history: BaseChatMessageHistory
-    ):
+    def __init__(self, chain: Chain, chat_history: BaseChatMessageHistory):
         self.chain = chain
         self.chat_history = chat_history
 
@@ -42,24 +40,28 @@ class TravelAgentV1:
 def init_agent_v1() -> TravelAgentV1:
     session = datetime.now().strftime("%m.%d.%Y_%H.%M.%S")
     if os.environ["APP_ENV"] == "dev":
-        callbacks = [AimCallbackHandler(repo=".", experiment_name=f"Travel Agent V1: {session}")]
+        callbacks = [
+            AimCallbackHandler(repo=".", experiment_name=f"Travel Agent V1: {session}")
+        ]
     else:
         callbacks = []
     llm = OpenAI(openai_api_key=os.environ["OPENAI_API_KEY"], temperature=0)
     memory = ConversationBufferMemory(memory_key="chat_history")
-    prompt = PromptTemplate.from_file(template_file=f"{os.environ['PROMPT_TEMPLATE_PATH']}/travel_agent.prompt",
-                                      input_variables=["chat_history", "human_input"])
-    chain = LLMChain(llm=llm, memory=memory, prompt=prompt, callbacks=callbacks)  # , callbacks=callbacks
+    prompt = PromptTemplate.from_file(
+        template_file=f"{os.environ['PROMPT_TEMPLATE_PATH']}/travel_agent.prompt",
+        input_variables=["chat_history", "human_input"],
+    )
+    chain = LLMChain(
+        llm=llm, memory=memory, prompt=prompt, callbacks=callbacks
+    )  # , callbacks=callbacks
     chat_history = PostgresChatMessageHistory(
         connection_string=f"{os.environ['PG_URI']}/{os.environ['APP_ENV']}",
         session_id=generate_session_id(),
-        table_name=f"chat_history_{os.environ['APP_ENV']}"
+        table_name=f"chat_history_{os.environ['APP_ENV']}",
     )
     return TravelAgentV1(chain=chain, chat_history=chat_history)
 
 
 travel_agent_v1 = init_agent_v1()
 
-agents = {
-    "travel_agent_v1": init_agent_v1()
-}
+agents = {"travel_agent_v1": init_agent_v1()}

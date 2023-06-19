@@ -26,19 +26,23 @@ PG_URI = f"postgresql://{PG_USER}:{PG_SECRET}@{PG_HOST}:{PG_PORT}/${APP_ENV}"
 STATE_SCHEMA = {
     "filter": {"id": "filter", "type": "text", "value": ""},
     "slider": {"id": "slider", "type": "range", "value": "5000"},
-    "wildlife-checkbox": {"checked": False, "id": "wildlife-checkbox", "type": "checkbox"}
+    "wildlife-checkbox": {
+        "checked": False,
+        "id": "wildlife-checkbox",
+        "type": "checkbox",
+    },
 }
 
 
 class FlaskConfig:
-    SECRET_KEY = os.environ['SECRET_KEY']
-    SESSION_TYPE = 'redis'
-    SESSION_REDIS = redis.from_url('redis://localhost:6379')
+    SECRET_KEY = os.environ["SECRET_KEY"]
+    SESSION_TYPE = "redis"
+    SESSION_REDIS = redis.from_url("redis://localhost:6379")
     SESSION_PERMANENT = True
     SESSION_USE_SIGNER = True
     SESSION_COOKIE_SAMESITE = "None"
     SESSION_COOKIE_SECURE = True
-    PROMPT_TEMPLATE_PATH = os.environ['PROMPT_TEMPLATE_PATH']
+    PROMPT_TEMPLATE_PATH = os.environ["PROMPT_TEMPLATE_PATH"]
 
     @staticmethod
     def init_app(app):
@@ -67,13 +71,10 @@ class TestConfig(FlaskConfig):
 
 
 class CorsConfig:
-    CORS_ORIGIN = os.environ['CORS_ORIGIN']
-    CORS_HEADERS = ['Content-Type', 'x-csrf-token']
+    CORS_ORIGIN = os.environ["CORS_ORIGIN"]
+    CORS_HEADERS = ["Content-Type", "x-csrf-token"]
     CORS_METHODS = ["GET", "POST", "OPTIONS"]
     CORS_CREDENTIALS = "true"
 
 
-config = {
-    "development": DevelopmentConfig,
-    "testing": TestConfig
-}
+config = {"development": DevelopmentConfig, "testing": TestConfig}

@@ -2,9 +2,8 @@ import logging as lg
 
 import dotenv
 from flask import Flask
-from flask_session import Session
 from flask_cors import CORS
-
+from flask_session import Session
 from src.backend.config import config
 
 
@@ -25,9 +24,7 @@ def initialize_logging(app: Flask, environment: str, config: dict) -> int:
         log_format = "[%(asctime)s] %(levelname)s %(name)s: %(message)s"
         filename = f"./logs/{environment}.log"
         filemode = "a"
-        lg.basicConfig(filename=filename,
-                       filemode=filemode,
-                       format=log_format)
+        lg.basicConfig(filename=filename, filemode=filemode, format=log_format)
         log_level = config[environment].LOG_LEVEL
         lg.getLogger().setLevel(log_level)
         lg.info(f"Logging configured to: {log_level}")
@@ -55,6 +52,7 @@ def setup_basic_routes(app: Flask):
 def register_blueprints(app: Flask):
     with app.app_context():
         from src.backend.api.routes import api
+
         app.register_blueprint(api)
         blueprint_names = app.blueprints.keys()
         lg.info(f'Registered Blueprints: {", ".join(blueprint_names)}')

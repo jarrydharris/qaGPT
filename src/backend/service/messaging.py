@@ -2,12 +2,16 @@ import json
 import logging as lg
 
 from dotenv import load_dotenv
-from flask import jsonify, make_response, Response, session
-
-from src.backend.config import JSON_HEADER, BAD_REQUEST
+from flask import jsonify
+from flask import make_response
+from flask import Response
+from flask import session
+from langchain.agents import AgentExecutor
+from src.backend.config import BAD_REQUEST
+from src.backend.config import JSON_HEADER
 from src.backend.models.agent import travel_agent_v1
 from src.backend.service.intent_detection import init_intent_executor
-from langchain.agents import AgentExecutor
+
 load_dotenv()
 
 
@@ -40,7 +44,9 @@ def postprocessing(message: str, response: str, agent: AgentExecutor) -> None:
     agent.run(chat_log)
 
 
-def handle_message(session: session, data: dict, agent=travel_agent_v1, test: bool = False) -> Response:
+def handle_message(
+    session: session, data: dict, agent=travel_agent_v1, test: bool = True
+) -> Response:
     lg.debug(f"User message: {data}")
 
     message = data.get("message")
@@ -50,7 +56,14 @@ def handle_message(session: session, data: dict, agent=travel_agent_v1, test: bo
         lg.debug(f"User message validated.")
     except (ValueError, TypeError) as e:
         lg.error(f"Invalid message, returning warning. {e}")
-        return make_response(jsonify(f"The data: '{data}' caused an error: '{e}'."), BAD_REQUEST, JSON_HEADER)
+        return make_response(
+            jsonify(f"The data: '{data}' caused an error: '{e}'."),
+            BAD_REQUEST,
+            JSON_HEADER,
+        )
+
+    intent_detector = init_intent_executor(session)
+    # preprocessing(message, intent_detector)
 
     if test:
         lg.info(f"Test mode, returning test response.")
@@ -59,8 +72,6 @@ def handle_message(session: session, data: dict, agent=travel_agent_v1, test: bo
     else:
         lg.info(f"Agent message: {message}")
         agent_response = agent.predict(human_input=message)
-
-    intent_detector = init_intent_executor(session)
-    postprocessing(message, agent_response, intent_detector)
+        postprocessing(message, agent_response, intent_detector)
 
     return make_response(jsonify(agent_response), JSON_HEADER)

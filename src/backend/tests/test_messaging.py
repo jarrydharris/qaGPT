@@ -1,6 +1,6 @@
 import pytest
-
-from src.backend.service.messaging import decode_message, validate_message
+from src.backend.service.messaging import decode_message
+from src.backend.service.messaging import validate_message
 
 
 def test_decoding_user_message_returns_json():
