@@ -48,7 +48,7 @@ def set_session() -> Response:
 @api.route("/set_input_state", methods=["POST", "OPTIONS"])
 @requires_session
 def set_input_state():
-    lg.info(f"User updating state")
+    lg.info("User updating state")
     if handle_state_change(session, request.json):
         return make_response(jsonify("success"), JSON_HEADER)
     else:
@@ -58,7 +58,7 @@ def set_input_state():
 @api.route("/get_input_state", methods=["GET"])
 @requires_session
 def get_input_state():
-    lg.debug(f"User requested checkbox state")
+    lg.debug("User requested checkbox state")
     return make_response(jsonify(session["state"]), JSON_HEADER)
 
 
@@ -71,7 +71,7 @@ def send_message() -> Response:
 
 @api.route("/health", methods=["GET"])
 def health() -> Response:
-    lg.info(f"User sent a health check.")
+    lg.info("User sent a health check.")
     return make_response(jsonify("success"), JSON_HEADER)
 
 
@@ -79,9 +79,12 @@ def health() -> Response:
 def _cors(response):  # pragma: no cover
     if request.method == "OPTIONS":
         response = make_response()
-        response.headers.add("Access-Control-Allow-Origin", CorsConfig.CORS_ORIGIN)
         response.headers.add(
-            "Access-Control-Allow-Credentials", CorsConfig.CORS_CREDENTIALS
+            "Access-Control-Allow-Origin", CorsConfig.CORS_ORIGIN
+        )
+        response.headers.add(
+            "Access-Control-Allow-Credentials",
+            CorsConfig.CORS_CREDENTIALS
         )
 
         for header in CorsConfig.CORS_HEADERS:
