@@ -16,8 +16,6 @@ CRED = "\33[31m"
 CEND = "\33[0m"
 
 
-
-
 def update_destination(session: ServerSideSession, user_input: str) -> str:
     print(f"{CRED}\nCheckbox API called, input: {user_input}\n{CEND}")
     session["state"]["filter"]["value"] = user_input
@@ -119,6 +117,7 @@ Thriller,
 War,
 Other]"""
 
+
 def update_genre(session: ServerSideSession, user_input: str) -> str:
     print(f"{CRED}\nCheckbox API called, input: {user_input}\n{CEND}")
     if user_input not in genres:
@@ -126,13 +125,16 @@ def update_genre(session: ServerSideSession, user_input: str) -> str:
     try:
         session["state"][user_input]["checked"] = True
     except KeyError:
-        return "Invalid genre, try again, your input must be one of the following:\n" + genres
+        return (
+            "Invalid genre, try again, your input must be one of the following:\n" +
+            genres
+        )
 
     return "Your job is complete, no further action required"
 
+
 def init_intent_executor_movie(session: ServerSideSession) -> AgentExecutor:
     checkbox = FlaskSessionTool(session=session, func=update_genre)
-
 
     prefix = f"""You identify a users interest in movie genres.
     Read the Chat log and select a genre from this list: {genres}

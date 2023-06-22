@@ -61,6 +61,7 @@ def init_agent_v1() -> TravelAgentV1:
     )
     return TravelAgentV1(chain=chain, chat_history=chat_history)
 
+
 def init_agent_v2() -> TravelAgentV1:
     session = datetime.now().strftime("%m.%d.%Y_%H.%M.%S")
     if os.environ["APP_ENV"] == "dev":

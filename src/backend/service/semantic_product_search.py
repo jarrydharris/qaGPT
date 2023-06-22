@@ -1,32 +1,39 @@
 import os
 from datetime import datetime
-from typing import Type, Iterable, List, Optional, Any, TypeVar
+from typing import Any
+from typing import Iterable
+from typing import List
+from typing import Optional
+from typing import Type
+from typing import TypeVar
 
 import weaviate
 from dotenv import load_dotenv
 from flask_session.sessions import ServerSideSession
-from langchain import LLMChain, OpenAI
-from langchain.agents import AgentExecutor, ZeroShotAgent, create_vectorstore_agent
-from langchain.agents.agent_toolkits import VectorStoreInfo, VectorStoreToolkit
-from langchain.callbacks import AimCallbackHandler, StdOutCallbackHandler
+from langchain import OpenAI
+from langchain.agents import AgentExecutor
+from langchain.agents import create_vectorstore_agent
+from langchain.agents.agent_toolkits import VectorStoreInfo
+from langchain.agents.agent_toolkits import VectorStoreToolkit
+from langchain.callbacks import AimCallbackHandler
+from langchain.callbacks import StdOutCallbackHandler
 from langchain.callbacks.base import BaseCallbackManager
 from langchain.embeddings.base import Embeddings
 from langchain.schema import Document
-from langchain.tools import Tool
 from langchain.vectorstores import VectorStore
-
-from src.backend.models.custom_tools import FlaskSessionTool
-from src.backend.service.intent_detection import call_other
 
 load_dotenv()
 
 additional_headers = {"X-OpenAI-Api-Key": os.environ["OPENAI_API_KEY"]}
 url = os.environ["CLUSTER_URL"]
 auth_client_secret = weaviate.AuthApiKey(api_key=os.environ["CLUSTER_KEY"])
-client = weaviate.Client(url=url, auth_client_secret=auth_client_secret, additional_headers=additional_headers)
+client = weaviate.Client(
+    url=url,
+    auth_client_secret=auth_client_secret,
+    additional_headers=additional_headers,
+)
 
 VST = TypeVar("VST", bound="VectorStore")
-
 
 
 class WeaviateMovieStore(VectorStore):
@@ -38,43 +45,64 @@ class WeaviateMovieStore(VectorStore):
         self._client = self._init_client()
 
     def _init_client(self) -> weaviate.Client:
-        return weaviate.Client(url=self._cluster_url, auth_client_secret=self._cluster_key,
-                               additional_headers=self._headers)
+        return weaviate.Client(
+            url=self._cluster_url,
+            auth_client_secret=self._cluster_key,
+            additional_headers=self._headers,
+        )
 
-    def add_texts(self, texts: Iterable[str], metadatas: Optional[List[dict]] = None, **kwargs: Any) -> List[str]:
+    def add_texts(
+        self,
+        texts: Iterable[str],
+        metadatas: Optional[List[dict]] = None,
+        **kwargs: Any,
+    ) -> List[str]:
         raise NotImplementedError
 
     def _update_product_list(self, product_ids: List[int]) -> None:
-        if 'products' not in self._session:
-            self._session['product_ids'] = product_ids
-        self._session.update({'product_ids': product_ids})
+        if "products" not in self._session:
+            self._session["product_ids"] = product_ids
+        self._session.update({"product_ids": product_ids})
         self._session.modified = True
         print(f"\n\nUpdated product list: {self._session}\n\n")
 
-    def similarity_search(self, query: str, k: int = 4, **kwargs: Any) -> List[Document]:
+    def similarity_search(
+        self, query: str, k: int = 4, **kwargs: Any
+    ) -> List[Document]:
         response = (
-            client.query
-            .get("Movie", ["tmdb_id", "title", "overview"])
+            client.query.get("Movie", ["tmdb_id", "title", "overview"])
             .with_near_text({"concepts": [query]})
             .with_limit(k)
             .do()
         )
-        response = response.get('data').get('Get').get('Movie')
+        response = response.get("data").get("Get").get("Movie")
         if response is None:
             return []
-        response = [Document(page_content=m['overview'], metadata={"title": m['title'], "source": m['tmdb_id']}) for m
-                    in response]
-        self._update_product_list([int(d.metadata['source']) for d in response])
+        response = [
+            Document(
+                page_content=m["overview"],
+                metadata={"title": m["title"], "source": m["tmdb_id"]},
+            )
+            for m in response
+        ]
+        self._update_product_list([int(d.metadata["source"]) for d in response])
         return response
 
     @classmethod
-    def from_texts(cls: Type[VST], texts: List[str], embedding: Embeddings, metadatas: Optional[List[dict]] = None,
-                   **kwargs: Any) -> VST:
+    def from_texts(
+        cls: Type[VST],
+        texts: List[str],
+        embedding: Embeddings,
+        metadatas: Optional[List[dict]] = None,
+        **kwargs: Any,
+    ) -> VST:
         raise NotImplementedError
 
 
 def init_semantic_searcher(session: ServerSideSession) -> AgentExecutor:
-    movie_db = WeaviateMovieStore(url, os.environ["CLUSTER_KEY"], additional_headers, session)
+    movie_db = WeaviateMovieStore(
+        url, os.environ["CLUSTER_KEY"], additional_headers, session
+    )
     vectorstore_info = VectorStoreInfo(
         name="Move database",
         description="A database of movies, pass in a query and get back similar movies",
@@ -88,7 +116,9 @@ def init_semantic_searcher(session: ServerSideSession) -> AgentExecutor:
     )
     callbacks = [StdOutCallbackHandler(), aim_callback]
     callback_manager = BaseCallbackManager(handlers=callbacks)
-    agent_executor = create_vectorstore_agent(llm=llm, toolkit=toolkit, verbose=True, callback_manager=callback_manager)
+    agent_executor = create_vectorstore_agent(
+        llm=llm, toolkit=toolkit, verbose=True, callback_manager=callback_manager
+    )
     return agent_executor
     # aim_callback.flush_tracker(
     #     langchain_asset=llm,

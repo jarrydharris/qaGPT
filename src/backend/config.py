@@ -34,8 +34,9 @@ PG_URI = f"postgresql://{PG_USER}:{PG_SECRET}@{PG_HOST}:{PG_PORT}/${APP_ENV}"
 #     },
 # }
 
-with open("src/backend/genre_schema.json", "r") as f:
+with open("src/backend/genre_schema.json") as f:
     STATE_SCHEMA = json.load(f)
+
 
 class FlaskConfig:
     SECRET_KEY = os.environ["SECRET_KEY"]
