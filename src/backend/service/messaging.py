@@ -2,15 +2,16 @@ import json
 import logging as lg
 
 from dotenv import load_dotenv
+from flask import Response
 from flask import jsonify
 from flask import make_response
-from flask import Response
 from flask import session
 from langchain.agents import AgentExecutor
+
 from src.backend.config import BAD_REQUEST
 from src.backend.config import JSON_HEADER
-from src.backend.models.agent import travel_agent_v1
-from src.backend.service.intent_detection import init_intent_executor
+from src.backend.models.agent import movie_agent_v1
+from src.backend.service.semantic_product_search import init_semantic_searcher
 
 load_dotenv()
 
@@ -45,7 +46,7 @@ def postprocessing(message: str, response: str, agent: AgentExecutor) -> None:
 
 
 def handle_message(
-    session: session, data: dict, agent=travel_agent_v1, test: bool = True
+        session: session, data: dict, agent=movie_agent_v1, test: bool = False
 ) -> Response:
     lg.debug(f"User message: {data}")
 
@@ -53,7 +54,7 @@ def handle_message(
 
     try:
         validate_message(message)
-        lg.debug(f"User message validated.")
+        lg.debug("User message validated.")
     except (ValueError, TypeError) as e:
         lg.error(f"Invalid message, returning warning. {e}")
         return make_response(
@@ -62,11 +63,11 @@ def handle_message(
             JSON_HEADER,
         )
 
-    intent_detector = init_intent_executor(session)
+    intent_detector = init_semantic_searcher(session)
     # preprocessing(message, intent_detector)
 
     if test:
-        lg.info(f"Test mode, returning test response.")
+        lg.info("Test mode, returning test response.")
         agent_response = f"DEBUG: This is a test response.{session['session_id']}"
 
     else:

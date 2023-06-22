@@ -68,6 +68,14 @@ def send_message() -> Response:
     lg.info(f"User sent a message {request.json}")
     return handle_message(session, request.json)
 
+@api.route("/products", methods=["GET"])
+@requires_session
+def get_products() -> Response:
+    lg.info(f"User requested products")
+    if "product_ids" not in session:
+        return make_response(jsonify([]), JSON_HEADER)
+    return make_response(jsonify(session["product_ids"]), JSON_HEADER)
+
 
 @api.route("/health", methods=["GET"])
 def health() -> Response:
@@ -79,12 +87,9 @@ def health() -> Response:
 def _cors(response):  # pragma: no cover
     if request.method == "OPTIONS":
         response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", CorsConfig.CORS_ORIGIN)
         response.headers.add(
-            "Access-Control-Allow-Origin", CorsConfig.CORS_ORIGIN
-        )
-        response.headers.add(
-            "Access-Control-Allow-Credentials",
-            CorsConfig.CORS_CREDENTIALS
+            "Access-Control-Allow-Credentials", CorsConfig.CORS_CREDENTIALS
         )
 
         for header in CorsConfig.CORS_HEADERS:

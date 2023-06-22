@@ -61,9 +61,11 @@ flask-run:
 	@flask run
 
 run:
+	@docker run -p 6379:6379 -it redis/redis-stack:latest
 	@export APP_ENV='development'
 	@export FLASK_APP="src.backend.app_factory:create_app('${APP_ENV}')"
 	@flask run
+	@cd src/frontend && npm run dev
 
 test:
 	@export APP_ENV='testing'

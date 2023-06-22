@@ -6,7 +6,7 @@ from src.backend.config import SUCCESS
 
 # this costs money, so we don't want to run it by default
 # TODO: Mocks https://python.langchain.com/en/latest/modules/models/llms/examples/fake_llm.html
-test_agents = True
+test_agents = False
 if not test_agents:
     lg.info("Skipping agent tests")
     pytest.skip("Skipping agent tests", allow_module_level=True)

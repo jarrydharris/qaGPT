@@ -1,3 +1,4 @@
+import json
 import logging as lg
 import os
 
@@ -23,16 +24,18 @@ PG_SECRET = os.environ["PG_SECRET"]
 APP_ENV = os.environ["APP_ENV"]
 PG_URI = f"postgresql://{PG_USER}:{PG_SECRET}@{PG_HOST}:{PG_PORT}/${APP_ENV}"
 
-STATE_SCHEMA = {
-    "filter": {"id": "filter", "type": "text", "value": ""},
-    "slider": {"id": "slider", "type": "range", "value": "5000"},
-    "wildlife-checkbox": {
-        "checked": False,
-        "id": "wildlife-checkbox",
-        "type": "checkbox",
-    },
-}
+# STATE_SCHEMA = {
+#     "filter": {"id": "filter", "type": "text", "value": ""},
+#     "slider": {"id": "slider", "type": "range", "value": "5000"},
+#     "wildlife-checkbox": {
+#         "checked": False,
+#         "id": "wildlife-checkbox",
+#         "type": "checkbox",
+#     },
+# }
 
+with open("src/backend/genre_schema.json", "r") as f:
+    STATE_SCHEMA = json.load(f)
 
 class FlaskConfig:
     SECRET_KEY = os.environ["SECRET_KEY"]
