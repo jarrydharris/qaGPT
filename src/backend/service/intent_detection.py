@@ -125,10 +125,8 @@ def update_genre(session: ServerSideSession, user_input: str) -> str:
     try:
         session["state"][user_input]["checked"] = True
     except KeyError:
-        return (
-            "Invalid genre, try again, your input must be one of the following:\n" +
-            genres
-        )
+        e_str = "Invalid genre, try again, your input must be one of the following:\n"
+        return e_str + genres
 
     return "Your job is complete, no further action required"
 
