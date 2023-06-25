@@ -1,65 +1,40 @@
 import logging as lg
 
 from flask import Blueprint
+from flask import Response
 from flask import jsonify
 from flask import make_response
 from flask import request
-from flask import Response
 from flask import session
-from flask_cors import CORS
-from src.backend.config import BAD_REQUEST
+
 from src.backend.config import CorsConfig
 from src.backend.config import JSON_HEADER
-from src.backend.config import SUCCESS
+from src.backend.config import requires_session
 from src.backend.service.messaging import handle_message
-from src.backend.service.ui_state import handle_state_change
-from src.backend.service.ui_state import initialize_ui_state
+from src.backend.service.ui_state import handle_state_change, handle_initialization_request, handle_get_state, \
+    handle_product_request
 
 api = Blueprint("api", __name__, url_prefix="/api")
-CORS(api, supports_credentials=True)
-
-
-def requires_session(func):
-    def wrapper(*args, **kwargs):
-        if "session_id" not in session:
-            lg.error("Session not initialized, returning warning.")
-            return make_response(
-                jsonify("Session not initialized, try refreshing the page."),
-                SUCCESS,
-                JSON_HEADER,
-            )
-        return func(*args, **kwargs)
-
-    wrapper.__name__ = func.__name__
-    return wrapper
 
 
 @api.route("/init_session", methods=["POST", "OPTIONS"])
 def set_session() -> Response:
     lg.info("User requesting session.")
-    initialization_successful = initialize_ui_state(session, request.json)
-    if not initialization_successful:
-        lg.info("Invalid schema, returning 400.")
-        return make_response(jsonify("Invalid schema"), BAD_REQUEST)
-    lg.debug("session obj: {session}")
-    return make_response(jsonify(session["session_id"]), JSON_HEADER)
+    return handle_initialization_request(session, request.json)
 
 
-@api.route("/set_input_state", methods=["POST", "OPTIONS"])
+@api.route("/set_input_state", methods=["POST"])
 @requires_session
 def set_input_state():
-    lg.info("User updating state")
-    if handle_state_change(session, request.json):
-        return make_response(jsonify("success"), JSON_HEADER)
-    else:
-        return make_response(jsonify("Invalid schema"), BAD_REQUEST)
+    lg.info("set_input_state called.")
+    return handle_state_change(session, request.json)
 
 
 @api.route("/get_input_state", methods=["GET"])
 @requires_session
 def get_input_state():
     lg.debug("User requested checkbox state")
-    return make_response(jsonify(session["state"]), JSON_HEADER)
+    return handle_get_state(session)
 
 
 @api.route("/send_message", methods=["POST"])
@@ -72,10 +47,15 @@ def send_message() -> Response:
 @api.route("/products", methods=["GET"])
 @requires_session
 def get_products() -> Response:
-    lg.info("User requested products")
-    if "product_ids" not in session:
-        return make_response(jsonify([]), JSON_HEADER)
-    return make_response(jsonify(session["product_ids"]), JSON_HEADER)
+    lg.info(f"User requested products: {session}")
+    return handle_product_request(session)
+
+
+@api.route("/session", methods=["GET"])
+@requires_session
+def get_session() -> Response:
+    lg.info(f"DEBUG: session: {session}")
+    return make_response(jsonify(session), JSON_HEADER)
 
 
 @api.route("/health", methods=["GET"])
