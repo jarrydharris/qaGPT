@@ -2,11 +2,12 @@ import json
 import logging as lg
 
 from dotenv import load_dotenv
+from flask import Response
 from flask import jsonify
 from flask import make_response
-from flask import Response
 from flask import session
 from langchain.agents import AgentExecutor
+
 from src.backend.config import BAD_REQUEST
 from src.backend.config import JSON_HEADER
 from src.backend.models.agent import movie_agent_v1
@@ -45,11 +46,12 @@ def postprocessing(message: str, response: str, agent: AgentExecutor) -> None:
 
 
 def handle_message(
-    session: session, data: dict, agent=movie_agent_v1, test: bool = False
+        session: session, data: dict, agent=movie_agent_v1, test: bool = False
 ) -> Response:
     lg.debug(f"User message: {data}")
 
     message = data.get("message")
+    agent_response = ""
 
     try:
         validate_message(message)
