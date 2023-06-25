@@ -24,15 +24,6 @@ from langchain.vectorstores import VectorStore
 
 load_dotenv()
 
-additional_headers = {"X-OpenAI-Api-Key": os.environ["OPENAI_API_KEY"]}
-url = os.environ["CLUSTER_URL"]
-auth_client_secret = weaviate.AuthApiKey(api_key=os.environ["CLUSTER_KEY"])
-client = weaviate.Client(
-    url=url,
-    auth_client_secret=auth_client_secret,
-    additional_headers=additional_headers,
-)
-
 VST = TypeVar("VST", bound="VectorStore")
 
 
@@ -52,10 +43,10 @@ class WeaviateMovieStore(VectorStore):
         )
 
     def add_texts(
-        self,
-        texts: Iterable[str],
-        metadatas: Optional[List[dict]] = None,
-        **kwargs: Any,
+            self,
+            texts: Iterable[str],
+            metadatas: Optional[List[dict]] = None,
+            **kwargs: Any,
     ) -> List[str]:
         raise NotImplementedError
 
@@ -67,17 +58,19 @@ class WeaviateMovieStore(VectorStore):
         print(f"\n\nUpdated product list: {self._session}\n\n")
 
     def similarity_search(
-        self, query: str, k: int = 4, **kwargs: Any
+            self, query: str, k: int = 4, **kwargs: Any
     ) -> List[Document]:
         response = (
-            client.query.get("Movie", ["tmdb_id", "title", "overview"])
+            self._client.query.get("Movie", ["tmdb_id", "title", "overview"])
             .with_near_text({"concepts": [query]})
             .with_limit(k)
             .do()
         )
         response = response.get("data").get("Get").get("Movie")
         if response is None:
-            return []
+            return [Document(page_content='just return "I dont know" as the answer.',
+                             metadata={"title": 'just return "I dont know" as the answer.',
+                                       "source": 'just return "I dont know" as the answer.'})]
         response = [
             Document(
                 page_content=m["overview"],
@@ -90,16 +83,18 @@ class WeaviateMovieStore(VectorStore):
 
     @classmethod
     def from_texts(
-        cls: Type[VST],
-        texts: List[str],
-        embedding: Embeddings,
-        metadatas: Optional[List[dict]] = None,
-        **kwargs: Any,
+            cls: Type[VST],
+            texts: List[str],
+            embedding: Embeddings,
+            metadatas: Optional[List[dict]] = None,
+            **kwargs: Any,
     ) -> VST:
         raise NotImplementedError
 
 
 def init_semantic_searcher(session: ServerSideSession) -> AgentExecutor:
+    additional_headers = {"X-OpenAI-Api-Key": os.environ["OPENAI_API_KEY"]}
+    url = os.environ["CLUSTER_URL"]
     movie_db = WeaviateMovieStore(
         url, os.environ["CLUSTER_KEY"], additional_headers, session
     )
@@ -120,7 +115,3 @@ def init_semantic_searcher(session: ServerSideSession) -> AgentExecutor:
         llm=llm, toolkit=toolkit, verbose=True, callback_manager=callback_manager
     )
     return agent_executor
-    # aim_callback.flush_tracker(
-    #     langchain_asset=llm,
-    #     experiment_name="Semantic product search flush",
-    # )
