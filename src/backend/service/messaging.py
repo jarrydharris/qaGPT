@@ -45,7 +45,7 @@ def postprocessing(message: str, response: str, agent: AgentExecutor) -> None:
 
 
 def handle_message(
-    session: session, data: dict, agent=movie_agent_v1, test: bool = False
+    session: session, data: dict, agent=movie_agent_v1, test: bool = True
 ) -> Response:
     lg.debug(f"User message: {data}")
 
