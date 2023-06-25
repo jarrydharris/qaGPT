@@ -1,3 +1,9 @@
+ngrok
+**/.firebase/
+scripts/
+notebooks/
+prompts/
+**/assets/
 **/.aim/
 .version.json
 logs/
