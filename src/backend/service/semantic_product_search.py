@@ -43,10 +43,10 @@ class WeaviateMovieStore(VectorStore):
         )
 
     def add_texts(
-            self,
-            texts: Iterable[str],
-            metadatas: Optional[List[dict]] = None,
-            **kwargs: Any,
+        self,
+        texts: Iterable[str],
+        metadatas: Optional[List[dict]] = None,
+        **kwargs: Any,
     ) -> List[str]:
         raise NotImplementedError
 
@@ -58,7 +58,7 @@ class WeaviateMovieStore(VectorStore):
         print(f"\n\nUpdated product list: {self._session}\n\n")
 
     def similarity_search(
-            self, query: str, k: int = 4, **kwargs: Any
+        self, query: str, k: int = 4, **kwargs: Any
     ) -> List[Document]:
         response = (
             self._client.query.get("Movie", ["tmdb_id", "title", "overview"])
@@ -68,9 +68,15 @@ class WeaviateMovieStore(VectorStore):
         )
         response = response.get("data").get("Get").get("Movie")
         if response is None:
-            return [Document(page_content='just return "I dont know" as the answer.',
-                             metadata={"title": 'just return "I dont know" as the answer.',
-                                       "source": 'just return "I dont know" as the answer.'})]
+            return [
+                Document(
+                    page_content='just return "I dont know" as the answer.',
+                    metadata={
+                        "title": 'just return "I dont know" as the answer.',
+                        "source": 'just return "I dont know" as the answer.',
+                    },
+                )
+            ]
         response = [
             Document(
                 page_content=m["overview"],
@@ -83,11 +89,11 @@ class WeaviateMovieStore(VectorStore):
 
     @classmethod
     def from_texts(
-            cls: Type[VST],
-            texts: List[str],
-            embedding: Embeddings,
-            metadatas: Optional[List[dict]] = None,
-            **kwargs: Any,
+        cls: Type[VST],
+        texts: List[str],
+        embedding: Embeddings,
+        metadatas: Optional[List[dict]] = None,
+        **kwargs: Any,
     ) -> VST:
         raise NotImplementedError
 

@@ -1,9 +1,13 @@
 import logging as lg
 import uuid
 
-from flask import session, make_response, jsonify, Response
-
-from src.backend.config import STATE_SCHEMA, JSON_HEADER, BAD_REQUEST
+from flask import jsonify
+from flask import make_response
+from flask import Response
+from flask import session
+from src.backend.config import BAD_REQUEST
+from src.backend.config import JSON_HEADER
+from src.backend.config import STATE_SCHEMA
 
 
 def handle_get_state(session: session) -> Response:
@@ -31,11 +35,17 @@ def handle_state_change(session: session, new_state: dict) -> Response:
     return make_response(jsonify("success"), JSON_HEADER)
 
 
-def handle_initialization_request(current_session: session, input_state: dict) -> Response:
+def handle_initialization_request(
+    current_session: session, input_state: dict
+) -> Response:
     if not state_schema_is_valid(input_state):
         lg.info("Invalid schema, returning 400.")
         return make_response(jsonify("Invalid schema"), BAD_REQUEST)
-    ui_state = {"session_id": str(uuid.uuid4()), "state": input_state, "product_ids": []}
+    ui_state = {
+        "session_id": str(uuid.uuid4()),
+        "state": input_state,
+        "product_ids": [],
+    }
     current_session.update(ui_state)
     lg.debug(f"session obj: {session}")
     return make_response(jsonify(session["session_id"]), JSON_HEADER)

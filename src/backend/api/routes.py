@@ -1,18 +1,19 @@
 import logging as lg
 
 from flask import Blueprint
-from flask import Response
 from flask import jsonify
 from flask import make_response
 from flask import request
+from flask import Response
 from flask import session
-
 from src.backend.config import CorsConfig
 from src.backend.config import JSON_HEADER
 from src.backend.config import requires_session
 from src.backend.service.messaging import handle_message
-from src.backend.service.ui_state import handle_state_change, handle_initialization_request, handle_get_state, \
-    handle_product_request
+from src.backend.service.ui_state import handle_get_state
+from src.backend.service.ui_state import handle_initialization_request
+from src.backend.service.ui_state import handle_product_request
+from src.backend.service.ui_state import handle_state_change
 
 api = Blueprint("api", __name__, url_prefix="/api")
 

@@ -4,7 +4,9 @@ import os
 
 import redis
 from dotenv import load_dotenv
-from flask import session, make_response, jsonify
+from flask import jsonify
+from flask import make_response
+from flask import session
 
 load_dotenv()
 

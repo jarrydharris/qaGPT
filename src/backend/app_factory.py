@@ -3,7 +3,6 @@ import logging as lg
 import dotenv
 from flask import Flask
 from flask_session import Session
-
 from src.backend.config import config
 
 
