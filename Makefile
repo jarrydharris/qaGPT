@@ -12,6 +12,7 @@
 .PHONY: clean
 .PHONY: add-dependency
 .PHONY: add-dependency-dev
+.PHONY: watch-dev
 
 # Environment variable checks
 ifndef PG_HOST
@@ -51,22 +52,38 @@ endif
 	@sleep 2
 	@echo "Logged in to db: ${APP_ENVIRONMENT} as user: ${PG_USER}"
 
+redis-run:
+	@docker run -p 6379:6379 -it redis/redis-stack:latest
+
+flask-run:
+	@export APP_ENV='development'
+	@export FLASK_APP="src.backend.app_factory:create_app('${APP_ENV}')"
+	@flask run
+
 run:
-	@echo "TODO: Implement run"
+	@docker run -p 6379:6379 -it redis/redis-stack:latest
+	@export APP_ENV='development'
+	@export FLASK_APP="src.backend.app_factory:create_app('${APP_ENV}')"
+	@flask run
+	@cd src/frontend && npm run dev
 
 test:
+	@export APP_ENV='testing'
+	@export FLASK_APP="src.backend.app_factory:create_app('${APP_ENV}')"
 	@pytest
+	@export APP_ENV='development'
+	@export FLASK_APP="src.backend.app_factory:create_app('${APP_ENV}')"
 
 clean:
 	@$(call find_and_del, ".pytest_cache", "d")
 	@$(call find_and_del, "__pycache__", "d")
 	@$(call find_and_del, ".coverage", "f")
 
-add-dependency:
-	@pip freeze | grep $(DEP) >> requirements.txt
+watch-dev:
+	@watch -n 1 "cat ./logs/development.log | tail -n 15"
 
-add-dependency-dev:
-	@pip freeze | grep $(DEP) >> requirements-dev.txt
+add:
+	@bash scripts/add_py_pkg.sh $(m)
 
 .DEFAULT_GOAL := help
 help:

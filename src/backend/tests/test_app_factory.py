@@ -1,6 +1,8 @@
+import logging as lg
+
 from src.backend.app_factory import initialize_logging
 from src.backend.config import config
-import logging as lg
+from src.backend.config import TestConfig
 
 
 def test_fixture_has_test_config(client):
@@ -13,12 +15,14 @@ def test_logging_for_each_environment(app):
     assert testing_level == lg.DEBUG
     assert development_level == lg.INFO
 
-def test_index(client):
-    response = client.get('/')
-    assert response.data == b'Hello World!'
-    assert response.status_code == 200
 
-def test_health(client):
-    response = client.get('/api/health')
-    assert response.data == b'success'
-    assert response.status_code == 200
+def test_app_has_testing_config(app):
+    assert app.config.get("ENV") == "testing"
+
+
+def test_apply_config_to_app(app):
+    assert app.config["SQLALCHEMY_DATABASE_URI"] == TestConfig.SQLALCHEMY_DATABASE_URI
+    assert app.config["TESTING"] is TestConfig.TESTING
+    assert app.config["LOG_LEVEL"] is lg.DEBUG
+    assert app.config["SESSION_TYPE"] == "redis"
+    assert app.config["SESSION_REDIS"].ping()

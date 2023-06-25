@@ -10,6 +10,14 @@ def app():
 
 @pytest.fixture()
 def client(app):
-    app.testing = True
     return app.test_client()
 
+
+@pytest.fixture()
+def client_session_a():
+    return create_app("testing", config).test_client()
+
+
+@pytest.fixture()
+def client_session_b():
+    return create_app("testing", config).test_client()
